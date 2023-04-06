@@ -5,6 +5,8 @@ from rest_framework.generics import RetrieveUpdateAPIView,DestroyAPIView
 from rest_framework.response import Response
 from .models import Menu,Booking
 from .serializers import MenuSerializer,BookingSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 class MenuItemView(rest_framework.views.APIView):
     def get(self,request):
@@ -27,7 +29,9 @@ class SingleMenuItemView(RetrieveUpdateAPIView,DestroyAPIView):
         else:
             return Response(f"No item with pk: {pk}")
         
+
 class BookingView(RetrieveUpdateAPIView,DestroyAPIView):
+    permission_classes = [IsAuthenticated]
     def get(self,request,pk):
         booking = Booking.objects.filter(id=pk)
         if booking:
@@ -44,3 +48,9 @@ class BookingPostView(RetrieveUpdateAPIView,DestroyAPIView):
         newBooking.save()
         newBooking = BookingSerializer(newBooking)
         return Response(newBooking.data,status = 200)
+    
+
+@api_view()
+@permission_classes([IsAuthenticated])
+def msg(request):
+    return Response({"message":"This view is protected"}) 
